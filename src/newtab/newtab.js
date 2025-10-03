@@ -376,6 +376,7 @@ async function updateCountdown() {
 		countdownHoursElement.style = `--value:${timeRemaining.hours}`;
 		countdownMinutesElement.style = `--value:${timeRemaining.minutes}`;
 		countdownSecondsElement.style = `--value:${timeRemaining.seconds}`;
+		countdownLabelElement.textContent = "";
 	}
 }
 
