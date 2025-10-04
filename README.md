@@ -46,9 +46,16 @@
 
 ### Beta Version
 
+For Firefox:
 1. **Download** the `.zip` from [Releases](https://github.com/NovatraX/exam-countdown-extension/releases/).
 2. **Extract** it to a folder.
-3. Open `chrome://extensions/` (or `about:addons` in Firefox).
+3. Open `about:debugging#/runtime/this-firefox` in Firefox.
+4. Click **"Load Temporary Add-on..."** and select the `manifest.json` file from the extracted folder.
+
+For Chrome:
+1. **Download** the `.zip` from [Releases](https://github.com/NovatraX/exam-countdown-extension/releases/).
+2. **Extract** it to a folder.
+3. Open `chrome://extensions/`.
 4. **Enable Developer Mode** (top right in Chrome).
 5. Click **"Load unpacked"** and select the extracted folder.
 
