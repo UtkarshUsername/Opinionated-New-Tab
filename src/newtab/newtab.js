@@ -618,7 +618,7 @@ function setupEventListeners() {
 				youtubeEmbed.classList.remove("hidden");
 
 				const videoId = youtubeMatch[1];
-				const embedUrl = `https://www.youtube-nocookie.com/embed/${videoId}?si=Y_vXpY6wIItrmI9x`;
+				const embedUrl = `https://novatrax.github.io/yt-embed-proxy/?v=${videoId}`;
 
 				while (youtubeEmbed.firstChild) {
 					youtubeEmbed.removeChild(youtubeEmbed.firstChild);
