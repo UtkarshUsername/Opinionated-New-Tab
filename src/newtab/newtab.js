@@ -110,21 +110,66 @@ async function setDefaultExam() {
 }
 
 const fallbackMotivationalQuotes = [
-	{ content: "The best way to predict the future is to create it.", author: "Abraham Lincoln" },
-	{ content: "Success is not final, failure is not fatal: It is the courage to continue that counts.", author: "Winston Churchill" },
-	{ content: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
-	{ content: "It always seems impossible until it's done.", author: "Nelson Mandela" },
-	{ content: "Education is the most powerful weapon which you can use to change the world.", author: "Nelson Mandela" },
-	{ content: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
-	{ content: "Don't watch the clock; do what it does. Keep going.", author: "Sam Levenson" },
-	{ content: "The future belongs to those who believe in the beauty of their dreams.", author: "Eleanor Roosevelt" },
-	{ content: "The more that you read, the more things you will know. The more that you learn, the more places you'll go.", author: "Dr. Seuss" },
-	{ content: "Your time is limited, don't waste it living someone else's life.", author: "Steve Jobs" },
-	{ content: "Hard work beats talent when talent doesn't work hard.", author: "Tim Notke" },
-	{ content: "The expert in anything was once a beginner.", author: "Helen Hayes" },
-	{ content: "The secret of getting ahead is getting started.", author: "Mark Twain" },
-	{ content: "Learning is never done without errors and defeat.", author: "Vladimir Lenin" },
-	{ content: "The only place where success comes before work is in the dictionary.", author: "Vidal Sassoon" },
+  {
+    content: "The best way to predict the future is to create it.",
+    author: "Abraham Lincoln",
+  },
+  {
+    content: "Believe you can and you're halfway there.",
+    author: "Theodore Roosevelt",
+  },
+  {
+    content: "It always seems impossible until it's done.",
+    author: "Nelson Mandela",
+  },
+  {
+    content:
+      "Education is the most powerful weapon which you can use to change the world.",
+    author: "Nelson Mandela",
+  },
+  {
+    content: "The only way to do great work is to love what you do.",
+    author: "Steve Jobs",
+  },
+  {
+    content: "Don't watch the clock; do what it does. Keep going.",
+    author: "Sam Levenson",
+  },
+  {
+    content:
+      "The future belongs to those who believe in the beauty of their dreams.",
+    author: "Eleanor Roosevelt",
+  },
+  {
+    content:
+      "The more that you read, the more things you will know. The more that you learn, the more places you'll go.",
+    author: "Dr. Seuss",
+  },
+  {
+    content: "Your time is limited, don't waste it living someone else's life.",
+    author: "Steve Jobs",
+  },
+  {
+    content: "Hard work beats talent when talent doesn't work hard.",
+    author: "Tim Notke",
+  },
+  {
+    content: "The expert in anything was once a beginner.",
+    author: "Helen Hayes",
+  },
+  {
+    content: "The secret of getting ahead is getting started.",
+    author: "Mark Twain",
+  },
+  {
+    content: "Learning is never done without errors and defeat.",
+    author: "Vladimir Lenin",
+  },
+  {
+    content:
+      "The only place where success comes before work is in the dictionary.",
+    author: "Vidal Sassoon",
+  },
 ];
 
 function updateDateTime() {
