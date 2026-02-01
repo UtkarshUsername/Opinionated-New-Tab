@@ -127,11 +127,6 @@ const fallbackMotivationalQuotes = [
     author: "Abraham Lincoln",
   },
   {
-    content:
-      "Success is not final, failure is not fatal: It is the courage to continue that counts.",
-    author: "Winston Churchill",
-  },
-  {
     content: "Believe you can and you're halfway there.",
     author: "Theodore Roosevelt",
   },
