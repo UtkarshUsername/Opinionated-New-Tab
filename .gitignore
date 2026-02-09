@@ -25,3 +25,6 @@ yarn-error.log*
 
 # extension.js
 extension-env.d.ts
+
+# web-ext temporary files
+*wsl.localhost*

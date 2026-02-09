@@ -3,6 +3,8 @@ import tailwindcss from "@tailwindcss/vite";
 import webExtension, { readJsonFile } from "vite-plugin-web-extension";
 
 const target = process.env.TARGET || "chrome";
+const targetBrowser = process.env.TARGET_BROWSER || "chrome";
+const chromiumBinary = process.env.CHROMIUM_BINARY || "/usr/bin/google-chrome";
 
 function generateManifest() {
   const manifest = readJsonFile("manifest.json");
@@ -27,9 +29,13 @@ export default defineConfig({
   plugins: [
     tailwindcss(),
     webExtension({
-      browser: process.env.TARGET_BROWSER,
+      browser: targetBrowser,
       manifest: generateManifest,
       watchFilePaths: ["package.json", "manifest.json"],
+      webExtConfig: {
+        target: "chromium",
+        chromiumBinary,
+      },
     }),
   ],
 });
