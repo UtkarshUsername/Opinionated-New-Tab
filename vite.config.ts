@@ -31,6 +31,7 @@ export default defineConfig({
     webExtension({
       browser: targetBrowser,
       manifest: generateManifest,
+      additionalInputs: ["timeline/timeline.html"],
       watchFilePaths: ["package.json", "manifest.json"],
       webExtConfig: {
         target: "chromium",

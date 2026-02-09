@@ -28,3 +28,7 @@ extension-env.d.ts
 
 # web-ext temporary files
 *wsl.localhost*
+
+#design inspiration images
+image.png
+image2.png

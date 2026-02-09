@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="stylesheet" href="../style.css" />
+		<title>Projects Timeline</title>
+	</head>
+
+	<body class="bg-base-300 h-screen overflow-hidden font-sans text-base-content">
+		<!-- Top Bar -->
+		<div class="flex items-center justify-between px-3 py-2 border-b border-base-content/10">
+			<h1 class="text-sm font-semibold">Projects Timeline</h1>
+			<div class="flex items-center gap-2">
+				<button id="new-project-btn" class="btn btn-primary btn-xs text-xs">+ New Project</button>
+				<a id="back-link" href="#" class="btn btn-ghost btn-xs text-xs opacity-60">← Dashboard</a>
+			</div>
+		</div>
+
+		<!-- Main Content -->
+		<div class="flex h-[calc(100vh-2.75rem)]">
+			<!-- Project List Sidebar -->
+			<div class="w-52 flex-shrink-0 border-r border-base-content/10 flex flex-col overflow-hidden">
+				<div class="px-2 py-1.5 text-xs font-semibold opacity-50 uppercase tracking-wider border-b border-base-content/10">Projects</div>
+				<ul id="project-list" class="flex-1 overflow-y-auto text-sm"></ul>
+			</div>
+
+			<!-- Timeline Chart -->
+			<div class="flex-1 overflow-hidden flex flex-col">
+				<div id="timeline-header" class="flex-shrink-0 border-b border-base-content/10 overflow-hidden"></div>
+				<div id="timeline-body" class="flex-1 overflow-auto relative" style="scrollbar-width:thin"></div>
+			</div>
+		</div>
+
+		<!-- New / Edit Project Modal -->
+		<dialog id="project-modal" class="modal">
+			<div class="modal-box bg-base-200 p-4 max-w-sm">
+				<h3 id="project-modal-title" class="font-semibold text-base mb-3">New Project</h3>
+				<input type="hidden" id="project-edit-id" />
+				<div class="space-y-2">
+					<input id="project-name-input" type="text" placeholder="Project name"
+						class="input input-sm input-bordered bg-base-100 w-full focus:outline-none text-sm" />
+					<div class="grid grid-cols-2 gap-2">
+						<div>
+							<label class="text-xs opacity-50 mb-0.5 block">Start</label>
+							<input id="project-start-input" type="date"
+								class="input input-sm input-bordered bg-base-100 w-full focus:outline-none text-sm font-mono" />
+						</div>
+						<div>
+							<label class="text-xs opacity-50 mb-0.5 block">End</label>
+							<input id="project-end-input" type="date"
+								class="input input-sm input-bordered bg-base-100 w-full focus:outline-none text-sm font-mono" />
+						</div>
+					</div>
+					<div>
+						<label class="text-xs opacity-50 mb-0.5 block">Color</label>
+						<div id="color-picker" class="flex gap-1.5 flex-wrap"></div>
+					</div>
+				</div>
+				<div class="flex justify-between mt-3">
+					<button id="project-delete-btn" class="btn btn-error btn-sm text-sm hidden">Delete</button>
+					<div class="flex gap-2 ml-auto">
+						<button id="project-cancel-btn" class="btn btn-ghost btn-sm text-sm">Cancel</button>
+						<button id="project-save-btn" class="btn btn-primary btn-sm text-sm">Save</button>
+					</div>
+				</div>
+			</div>
+			<form method="dialog" class="modal-backdrop"><button>close</button></form>
+		</dialog>
+
+		<!-- Help Overlay -->
+		<div id="help-overlay" class="fixed inset-0 z-50 bg-black/60 hidden flex items-center justify-center">
+			<div class="bg-base-200 rounded-lg p-4 max-w-xs w-full text-sm space-y-1">
+				<h3 class="font-semibold text-base mb-2">Keyboard Shortcuts</h3>
+				<div class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
+					<kbd class="kbd kbd-xs font-mono">n</kbd><span>New project</span>
+					<kbd class="kbd kbd-xs font-mono">b</kbd><span>Back to dashboard</span>
+					<kbd class="kbd kbd-xs font-mono">Esc</kbd><span>Close modal/overlay</span>
+					<kbd class="kbd kbd-xs font-mono">?</kbd><span>Toggle this help</span>
+				</div>
+			</div>
+		</div>
+
+		<script type="module" src="timeline.js"></script>
+	</body>
+</html>
