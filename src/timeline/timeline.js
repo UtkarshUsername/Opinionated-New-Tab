@@ -3,6 +3,7 @@ import { load, save, generateId } from "../newtab/store.js";
 let state = null;
 let selectedProjectId = null;
 let dragState = null;
+let createDragState = null;
 
 const DAY_WIDTH = 36;
 const ROW_HEIGHT = 36;
@@ -20,7 +21,7 @@ async function init() {
 }
 
 function getVisibleRange() {
-  const projects = state.projects.filter(p => !p.archivedAt);
+  const projects = state.projects;
   const today = new Date();
   let minDate = new Date(today);
   let maxDate = new Date(today);
@@ -56,7 +57,7 @@ function render() {
 function renderProjectList() {
   const list = document.getElementById("project-list");
   if (!list) return;
-  const projects = state.projects.filter(p => !p.archivedAt);
+  const projects = state.projects;
   list.innerHTML = "";
 
   if (projects.length === 0) {
@@ -78,13 +79,16 @@ function renderProjectList() {
     name.className = "flex-1 truncate";
     name.textContent = p.name;
 
+    const delBtn = document.createElement("button");
+    delBtn.className = "btn btn-ghost btn-xs opacity-0 group-hover:opacity-100 text-error text-sm px-0.5 leading-none";
+    delBtn.textContent = "×";
+    delBtn.addEventListener("click", (e) => { e.stopPropagation(); deleteProjectById(p.id); });
+
+    li.classList.add("group");
     li.appendChild(dot);
     li.appendChild(name);
-    li.addEventListener("click", () => {
-      selectedProjectId = p.id;
-      renderProjectList();
-    });
-    li.addEventListener("dblclick", () => openEditProject(p.id));
+    li.appendChild(delBtn);
+    li.addEventListener("click", () => openEditProject(p.id));
     list.appendChild(li);
   });
 }
@@ -95,7 +99,7 @@ function renderTimeline() {
   if (!header || !body) return;
 
   const days = getVisibleRange();
-  const projects = state.projects.filter(p => !p.archivedAt);
+  const projects = state.projects;
   const totalWidth = days.length * DAY_WIDTH;
 
   const todayStr = toDateStr(new Date());
@@ -257,16 +261,84 @@ function bindBarClicks() {
   if (!body) return;
 
   body.querySelectorAll(".bar-segment").forEach(bar => {
-    bar.addEventListener("dblclick", (e) => {
+    bar.addEventListener("click", (e) => {
       e.stopPropagation();
       openEditProject(bar.dataset.projectId);
     });
-    bar.addEventListener("click", (e) => {
-      e.stopPropagation();
-      selectedProjectId = bar.dataset.projectId;
-      renderProjectList();
-    });
   });
+
+  body.addEventListener("mousedown", (e) => {
+    if (e.button !== 0) return;
+    if (e.target.closest("[data-project-id]")) return;
+    const container = body.querySelector(".relative");
+    if (!container) return;
+    const rect = container.getBoundingClientRect();
+    const x = e.clientX - rect.left + body.scrollLeft;
+    const days = getVisibleRange();
+    const dayIdx = Math.floor(x / DAY_WIDTH);
+    if (dayIdx < 0 || dayIdx >= days.length) return;
+
+    createDragState = {
+      startDayIdx: dayIdx,
+      endDayIdx: dayIdx,
+      days,
+      container,
+    };
+
+    let preview = body.querySelector(".create-preview");
+    if (!preview) {
+      preview = document.createElement("div");
+      preview.className = "create-preview absolute h-1.5 rounded-full opacity-50 pointer-events-none z-20";
+      preview.style.background = "#7dd3fc";
+      container.appendChild(preview);
+    }
+    const rowCount = state.projects.length;
+    const top = rowCount * ROW_HEIGHT + 8 + 7;
+    preview.style.top = `${top}px`;
+    preview.style.left = `${dayIdx * DAY_WIDTH + DAY_WIDTH / 2}px`;
+    preview.style.width = `${DAY_WIDTH / 2}px`;
+    preview.style.display = "block";
+
+    const onMove = (ev) => {
+      if (!createDragState) return;
+      const mx = ev.clientX - rect.left + body.scrollLeft;
+      const curIdx = Math.max(0, Math.min(Math.floor(mx / DAY_WIDTH), days.length - 1));
+      createDragState.endDayIdx = curIdx;
+      const si = Math.min(createDragState.startDayIdx, curIdx);
+      const ei = Math.max(createDragState.startDayIdx, curIdx);
+      preview.style.left = `${si * DAY_WIDTH + DAY_WIDTH / 2}px`;
+      preview.style.width = `${Math.max((ei - si) * DAY_WIDTH, DAY_WIDTH / 2)}px`;
+    };
+
+    const onUp = () => {
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseup", onUp);
+      preview.style.display = "none";
+      if (!createDragState) return;
+      const si = Math.min(createDragState.startDayIdx, createDragState.endDayIdx);
+      const ei = Math.max(createDragState.startDayIdx, createDragState.endDayIdx);
+      const startDate = toDateStr(createDragState.days[si]);
+      const endDate = toDateStr(createDragState.days[ei]);
+      createDragState = null;
+      openNewProjectAtDate(startDate, endDate);
+    };
+
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseup", onUp);
+  });
+}
+
+function openNewProjectAtDate(startDate, endDate) {
+  const modal = document.getElementById("project-modal");
+  document.getElementById("project-modal-title").textContent = "New Project";
+  document.getElementById("project-edit-id").value = "";
+  document.getElementById("project-name-input").value = "";
+  document.getElementById("project-start-input").value = startDate;
+  document.getElementById("project-end-input").value = endDate || addDays(startDate, 14);
+  document.getElementById("project-delete-btn").classList.add("hidden");
+  renderColorPicker(COLORS[Math.floor(Math.random() * COLORS.length)]);
+  modal.showModal();
+  document.getElementById("project-name-input").focus();
 }
 
 function openNewProject() {
@@ -289,6 +361,8 @@ function openNewProject() {
 function openEditProject(id) {
   const project = state.projects.find(p => p.id === id);
   if (!project) return;
+  selectedProjectId = id;
+  renderProjectList();
 
   const modal = document.getElementById("project-modal");
   document.getElementById("project-modal-title").textContent = "Edit Project";
@@ -352,7 +426,6 @@ async function saveProject() {
       name,
       startDate,
       endDate,
-      archivedAt: null,
       color,
     });
   }
@@ -362,18 +435,51 @@ async function saveProject() {
   render();
 }
 
+let undoStack = [];
+
+async function deleteProjectById(id) {
+  const idx = state.projects.findIndex(p => p.id === id);
+  if (idx === -1) return;
+  const removed = state.projects.splice(idx, 1)[0];
+  undoStack.push({ project: removed, index: idx });
+  if (undoStack.length > 20) undoStack.shift();
+  await save(state);
+  if (selectedProjectId === id) selectedProjectId = null;
+  render();
+  showUndoToast(`Deleted "${removed.name}"`);
+}
+
 async function deleteProject() {
   const id = document.getElementById("project-edit-id").value;
   if (!id) return;
-
-  const idx = state.projects.findIndex(p => p.id === id);
-  if (idx === -1) return;
-
-  state.projects[idx].archivedAt = new Date().toISOString();
-  await save(state);
   document.getElementById("project-modal").close();
-  if (selectedProjectId === id) selectedProjectId = null;
+  await deleteProjectById(id);
+}
+
+async function undoDelete() {
+  if (undoStack.length === 0) return;
+  const action = undoStack.pop();
+  state.projects.splice(action.index, 0, action.project);
+  await save(state);
   render();
+  hideUndoToast();
+}
+
+function showUndoToast(msg) {
+  const toast = document.getElementById("undo-toast");
+  if (!toast) return;
+  toast.querySelector("span").textContent = msg;
+  toast.classList.remove("hidden");
+  const undoBtn = toast.querySelector("button");
+  const handler = () => { undoDelete(); undoBtn.removeEventListener("click", handler); };
+  undoBtn.addEventListener("click", handler);
+  if (showUndoToast._timer) clearTimeout(showUndoToast._timer);
+  showUndoToast._timer = setTimeout(() => hideUndoToast(), 5000);
+}
+
+function hideUndoToast() {
+  const toast = document.getElementById("undo-toast");
+  if (toast) toast.classList.add("hidden");
 }
 
 function goToDashboard() {
@@ -438,6 +544,17 @@ function bindKeyboard() {
 
     if (e.key === "b") {
       goToDashboard();
+      return;
+    }
+
+    if (e.key === "u") {
+      undoDelete();
+      return;
+    }
+
+    if (e.key === "Backspace" && selectedProjectId) {
+      e.preventDefault();
+      deleteProjectById(selectedProjectId);
       return;
     }
 

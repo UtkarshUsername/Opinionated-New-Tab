@@ -75,9 +75,19 @@
 				<div class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
 					<kbd class="kbd kbd-xs font-mono">n</kbd><span>New project</span>
 					<kbd class="kbd kbd-xs font-mono">b</kbd><span>Back to dashboard</span>
+					<kbd class="kbd kbd-xs font-mono">⌫</kbd><span>Delete selected project</span>
+					<kbd class="kbd kbd-xs font-mono">u</kbd><span>Undo</span>
 					<kbd class="kbd kbd-xs font-mono">Esc</kbd><span>Close modal/overlay</span>
 					<kbd class="kbd kbd-xs font-mono">?</kbd><span>Toggle this help</span>
 				</div>
+			</div>
+		</div>
+
+		<!-- Undo Toast -->
+		<div id="undo-toast" class="toast toast-end hidden">
+			<div class="alert alert-info text-sm py-2 px-3">
+				<span></span>
+				<button class="btn btn-ghost btn-xs">Undo</button>
 			</div>
 		</div>
 

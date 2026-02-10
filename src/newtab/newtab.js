@@ -138,12 +138,15 @@ async function undo() {
   const action = undoStack.pop();
   if (action.type === "delete") {
     state.tasks.splice(action.data.index, 0, action.data.task);
+  } else if (action.type === "delete-project") {
+    state.projects.splice(action.data.index, 0, action.data.project);
   } else if (action.type === "toggle") {
     const task = state.tasks.find(t => t.id === action.data.id);
     if (task) task.completedAt = action.data.prev;
   }
   await save(state);
   renderTasks();
+  renderProjects();
   updateToggleCompletedBtn();
   hideUndoToast();
 }
@@ -167,9 +170,10 @@ function hideUndoToast() {
 function renderProjects() {
   const container = document.getElementById("projects-list");
   if (!container) return;
-  const today = new Date().toISOString().slice(0, 10);
+  const now = new Date();
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
   const active = state.projects
-    .filter(p => !p.archivedAt && p.startDate <= today && p.endDate >= today)
+    .filter(p => p.startDate <= today && p.endDate >= today)
     .sort((a, b) => a.endDate.localeCompare(b.endDate));
 
   if (active.length === 0) {
@@ -179,19 +183,36 @@ function renderProjects() {
 
   const show = active.slice(0, 3);
   const extra = active.length - 3;
-  container.innerHTML = show.map(p => {
+  container.innerHTML = "";
+  show.forEach(p => {
     const end = new Date(p.endDate).toLocaleDateString("en-US", { month: "short", day: "numeric" });
     const color = p.color || "#7dd3fc";
-    return `<div class="flex items-center gap-2 px-2 py-1 rounded hover:bg-base-100/50">
-      <span class="w-2 h-2 rounded-full flex-shrink-0" style="background:${color}"></span>
+    const div = document.createElement("div");
+    div.className = "flex items-center gap-2 px-2 py-1 rounded hover:bg-base-100/50 group";
+    div.innerHTML = `<span class="w-2 h-2 rounded-full flex-shrink-0" style="background:${color}"></span>
       <span class="flex-1 text-sm">${p.name}</span>
-      <span class="text-xs opacity-50 font-mono">ends ${end}</span>
-    </div>`;
-  }).join("");
+      <span class="text-xs opacity-50 font-mono">ends ${end}</span>`;
+    const delBtn = document.createElement("button");
+    delBtn.className = "btn btn-ghost btn-xs opacity-0 group-hover:opacity-100 text-error text-sm px-1";
+    delBtn.textContent = "×";
+    delBtn.addEventListener("click", (e) => { e.stopPropagation(); deleteProject(p.id); });
+    div.appendChild(delBtn);
+    container.appendChild(div);
+  });
 
   if (extra > 0) {
     container.innerHTML += `<div class="text-xs opacity-40 px-2 py-1">+${extra} more</div>`;
   }
+}
+
+async function deleteProject(id) {
+  const idx = state.projects.findIndex(p => p.id === id);
+  if (idx === -1) return;
+  const removed = state.projects.splice(idx, 1)[0];
+  pushUndo("delete-project", { project: removed, index: idx });
+  await save(state);
+  renderProjects();
+  showUndoToast(`Deleted "${removed.name}"`);
 }
 
 function renderCountdown() {
@@ -247,6 +268,7 @@ function openCountdownEdit() {
     targetInput.value = "";
   }
   modal.showModal();
+  labelInput.focus();
 }
 
 async function saveCountdown() {
