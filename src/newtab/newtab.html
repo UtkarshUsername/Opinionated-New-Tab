@@ -15,8 +15,8 @@
 				<input
 					id="quick-add"
 					type="text"
-					placeholder="Quick add task…"
-					class="input input-sm input-bordered bg-base-100 w-full max-w-md mx-auto block focus:outline-none text-sm"
+					placeholder="Quick add task… ( / )"
+					class="input input-sm input-bordered bg-base-100 w-full max-w-md mx-auto block focus-ring text-sm"
 				/>
 			</div>
 			<div id="clock" class="text-sm font-mono tabular-nums opacity-80"></div>
@@ -27,8 +27,8 @@
 			<!-- Left: Tasks -->
 			<div class="flex flex-col p-3 border-r border-base-content/10 overflow-hidden">
 				<h2 class="text-base font-semibold mb-2">Tasks</h2>
-				<ul id="task-list" class="flex-1 overflow-y-auto space-y-1 text-sm"></ul>
-				<button id="toggle-completed" class="btn btn-ghost btn-xs mt-2 self-start text-xs opacity-60">
+				<ul id="task-list" class="flex-1 overflow-y-auto space-y-0.5 text-sm" role="listbox" aria-label="Tasks"></ul>
+				<button id="toggle-completed" class="btn btn-ghost btn-xs mt-2 self-start text-xs opacity-60 focus-ring">
 					Show completed
 				</button>
 			</div>
@@ -36,9 +36,9 @@
 			<!-- Center: Currently Working On -->
 			<div class="flex flex-col p-3 border-r border-base-content/10 overflow-hidden">
 				<h2 class="text-base font-semibold mb-2">Currently Working On</h2>
-				<div id="projects-list" class="flex-1 overflow-y-auto space-y-1 text-sm"></div>
-				<a id="timeline-link" href="#" class="btn btn-ghost btn-xs mt-2 self-start text-xs opacity-60">
-					Open Timeline
+				<div id="projects-list" class="flex-1 overflow-y-auto space-y-0.5 text-sm"></div>
+				<a id="timeline-link" href="#" class="btn btn-ghost btn-xs mt-2 self-start text-xs opacity-60 focus-ring">
+					Open Timeline <kbd class="kbd kbd-xs ml-1 font-mono">t</kbd>
 				</a>
 			</div>
 
@@ -51,9 +51,10 @@
 					<div id="countdown-target" class="text-xs opacity-50 mt-1 font-mono"></div>
 				</div>
 				<div class="flex gap-2 mt-2">
-					<button id="countdown-edit-btn" class="btn btn-ghost btn-xs text-xs opacity-60">Edit</button>
-					<button id="export-btn" class="btn btn-ghost btn-xs text-xs opacity-60">Export</button>
-					<button id="import-btn" class="btn btn-ghost btn-xs text-xs opacity-60">Import</button>
+					<button id="countdown-edit-btn" class="btn btn-ghost btn-xs text-xs opacity-60 focus-ring">Edit</button>
+					<div class="flex-1"></div>
+					<button id="export-btn" class="btn btn-ghost btn-xs text-xs opacity-60 focus-ring">Export</button>
+					<button id="import-btn" class="btn btn-ghost btn-xs text-xs opacity-60 focus-ring">Import</button>
 				</div>
 			</div>
 		</div>
@@ -62,7 +63,7 @@
 		<div id="undo-toast" class="toast toast-end hidden">
 			<div class="alert alert-info text-sm py-2 px-3">
 				<span></span>
-				<button class="btn btn-ghost btn-xs">Undo</button>
+				<button class="btn btn-ghost btn-xs focus-ring">Undo</button>
 			</div>
 		</div>
 
@@ -71,21 +72,27 @@
 			<div class="modal-box bg-base-200 p-4 max-w-sm">
 				<h3 class="font-semibold text-base mb-3">Edit Countdown</h3>
 				<div class="space-y-2">
-					<input
-						id="countdown-label-input"
-						type="text"
-						placeholder="Label"
-						class="input input-sm input-bordered bg-base-100 w-full focus:outline-none text-sm"
-					/>
-					<input
-						id="countdown-target-input"
-						type="datetime-local"
-						class="input input-sm input-bordered bg-base-100 w-full focus:outline-none text-sm"
-					/>
+					<div>
+						<label class="text-xs opacity-50 mb-0.5 block">Label</label>
+						<input
+							id="countdown-label-input"
+							type="text"
+							placeholder="Label"
+							class="input input-sm input-bordered bg-base-100 w-full focus-ring text-sm"
+						/>
+					</div>
+					<div>
+						<label class="text-xs opacity-50 mb-0.5 block">Target</label>
+						<input
+							id="countdown-target-input"
+							type="datetime-local"
+							class="input input-sm input-bordered bg-base-100 w-full focus-ring text-sm font-mono"
+						/>
+					</div>
 				</div>
 				<div class="flex justify-end gap-2 mt-3">
-					<button id="countdown-cancel-btn" class="btn btn-ghost btn-sm text-sm">Cancel</button>
-					<button id="countdown-save-btn" class="btn btn-primary btn-sm text-sm">Save</button>
+					<button id="countdown-cancel-btn" class="btn btn-ghost btn-sm text-sm focus-ring">Cancel</button>
+					<button id="countdown-save-btn" class="btn btn-primary btn-sm text-sm focus-ring">Save</button>
 				</div>
 			</div>
 			<form method="dialog" class="modal-backdrop">
@@ -102,12 +109,13 @@
 					<kbd class="kbd kbd-xs font-mono">t</kbd><span>Open Timeline</span>
 					<kbd class="kbd kbd-xs font-mono">c</kbd><span>Edit Countdown</span>
 					<kbd class="kbd kbd-xs font-mono">?</kbd><span>Toggle this help</span>
-					<kbd class="kbd kbd-xs font-mono">Esc</kbd><span>Close modal/overlay</span>
+					<kbd class="kbd kbd-xs font-mono">Esc</kbd><span>Close modal / blur</span>
 					<kbd class="kbd kbd-xs font-mono">↑/↓</kbd><span>Move task selection</span>
 					<kbd class="kbd kbd-xs font-mono">Space</kbd><span>Toggle task complete</span>
 					<kbd class="kbd kbd-xs font-mono">⌫</kbd><span>Delete selected task</span>
 					<kbd class="kbd kbd-xs font-mono">u</kbd><span>Undo</span>
 				</div>
+				<div class="text-xs opacity-40 mt-2 text-center">Press <kbd class="kbd kbd-xs">Esc</kbd> to close</div>
 			</div>
 		</div>
 

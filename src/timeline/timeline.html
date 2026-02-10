@@ -12,8 +12,8 @@
 		<div class="flex items-center justify-between px-3 py-2 border-b border-base-content/10">
 			<h1 class="text-sm font-semibold">Projects Timeline</h1>
 			<div class="flex items-center gap-2">
-				<button id="new-project-btn" class="btn btn-primary btn-xs text-xs">+ New Project</button>
-				<a id="back-link" href="#" class="btn btn-ghost btn-xs text-xs opacity-60">← Dashboard</a>
+				<button id="new-project-btn" class="btn btn-primary btn-xs text-xs focus-ring">+ New Project</button>
+				<a id="back-link" href="#" class="btn btn-ghost btn-xs text-xs opacity-60 focus-ring">← Dashboard</a>
 			</div>
 		</div>
 
@@ -39,17 +39,17 @@
 				<input type="hidden" id="project-edit-id" />
 				<div class="space-y-2">
 					<input id="project-name-input" type="text" placeholder="Project name"
-						class="input input-sm input-bordered bg-base-100 w-full focus:outline-none text-sm" />
+						class="input input-sm input-bordered bg-base-100 w-full focus-ring text-sm" />
 					<div class="grid grid-cols-2 gap-2">
 						<div>
 							<label class="text-xs opacity-50 mb-0.5 block">Start</label>
 							<input id="project-start-input" type="date"
-								class="input input-sm input-bordered bg-base-100 w-full focus:outline-none text-sm font-mono" />
+								class="input input-sm input-bordered bg-base-100 w-full focus-ring text-sm font-mono" />
 						</div>
 						<div>
 							<label class="text-xs opacity-50 mb-0.5 block">End</label>
 							<input id="project-end-input" type="date"
-								class="input input-sm input-bordered bg-base-100 w-full focus:outline-none text-sm font-mono" />
+								class="input input-sm input-bordered bg-base-100 w-full focus-ring text-sm font-mono" />
 						</div>
 					</div>
 					<div>
@@ -58,10 +58,10 @@
 					</div>
 				</div>
 				<div class="flex justify-between mt-3">
-					<button id="project-delete-btn" class="btn btn-error btn-sm text-sm hidden">Delete</button>
+					<button id="project-delete-btn" class="btn btn-error btn-sm text-sm hidden focus-ring">Delete</button>
 					<div class="flex gap-2 ml-auto">
-						<button id="project-cancel-btn" class="btn btn-ghost btn-sm text-sm">Cancel</button>
-						<button id="project-save-btn" class="btn btn-primary btn-sm text-sm">Save</button>
+						<button id="project-cancel-btn" class="btn btn-ghost btn-sm text-sm focus-ring">Cancel</button>
+						<button id="project-save-btn" class="btn btn-primary btn-sm text-sm focus-ring">Save</button>
 					</div>
 				</div>
 			</div>
@@ -80,6 +80,7 @@
 					<kbd class="kbd kbd-xs font-mono">Esc</kbd><span>Close modal/overlay</span>
 					<kbd class="kbd kbd-xs font-mono">?</kbd><span>Toggle this help</span>
 				</div>
+				<div class="text-xs opacity-40 mt-2 text-center">Press <kbd class="kbd kbd-xs">Esc</kbd> to close</div>
 			</div>
 		</div>
 
@@ -87,7 +88,7 @@
 		<div id="undo-toast" class="toast toast-end hidden">
 			<div class="alert alert-info text-sm py-2 px-3">
 				<span></span>
-				<button class="btn btn-ghost btn-xs">Undo</button>
+				<button class="btn btn-ghost btn-xs focus-ring">Undo</button>
 			</div>
 		</div>
 

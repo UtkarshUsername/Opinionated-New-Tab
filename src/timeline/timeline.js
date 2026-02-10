@@ -4,6 +4,8 @@ let state = null;
 let selectedProjectId = null;
 let dragState = null;
 let createDragState = null;
+let busy = false;
+let scrollBound = false;
 
 const DAY_WIDTH = 36;
 const ROW_HEIGHT = 36;
@@ -20,6 +22,20 @@ async function init() {
   bindKeyboard();
 }
 
+function guard(fn) {
+  return async (...args) => {
+    if (busy) return;
+    busy = true;
+    try { await fn(...args); } finally { busy = false; }
+  };
+}
+
+function escapeHtml(str) {
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
+
 function getVisibleRange() {
   const projects = state.projects;
   const today = new Date();
@@ -30,8 +46,8 @@ function getVisibleRange() {
   maxDate.setDate(maxDate.getDate() + 60);
 
   projects.forEach(p => {
-    const s = new Date(p.startDate);
-    const e = new Date(p.endDate);
+    const s = new Date(p.startDate + "T00:00:00");
+    const e = new Date(p.endDate + "T00:00:00");
     if (s < minDate) minDate = new Date(s.getTime() - 7 * 86400000);
     if (e > maxDate) maxDate = new Date(e.getTime() + 14 * 86400000);
   });
@@ -61,14 +77,14 @@ function renderProjectList() {
   list.innerHTML = "";
 
   if (projects.length === 0) {
-    list.innerHTML = `<li class="text-xs opacity-40 px-2 py-3">No projects yet.</li>`;
+    list.innerHTML = `<li class="text-xs opacity-40 px-2 py-3">No projects yet. Press <kbd class="kbd kbd-xs">n</kbd> to add one.</li>`;
     return;
   }
 
   projects.forEach(p => {
     const li = document.createElement("li");
     const isSelected = p.id === selectedProjectId;
-    li.className = `flex items-center gap-2 px-2 py-1.5 cursor-pointer select-none text-sm ${isSelected ? "bg-base-100 ring-1 ring-primary/40" : "hover:bg-base-100/50"}`;
+    li.className = `group flex items-center gap-2 px-2 py-1.5 cursor-pointer select-none text-sm ${isSelected ? "task-selected" : "hover:bg-base-100/50"}`;
     li.dataset.id = p.id;
 
     const dot = document.createElement("span");
@@ -80,11 +96,10 @@ function renderProjectList() {
     name.textContent = p.name;
 
     const delBtn = document.createElement("button");
-    delBtn.className = "btn btn-ghost btn-xs opacity-0 group-hover:opacity-100 text-error text-sm px-0.5 leading-none";
-    delBtn.textContent = "×";
-    delBtn.addEventListener("click", (e) => { e.stopPropagation(); deleteProjectById(p.id); });
+    delBtn.className = "group-action btn btn-ghost btn-xs opacity-0 group-hover:opacity-100 text-error text-sm px-0.5 leading-none focus-ring";
+    delBtn.textContent = "\u00d7";
+    delBtn.addEventListener("click", (e) => { e.stopPropagation(); guardedDeleteProjectById(p.id); });
 
-    li.classList.add("group");
     li.appendChild(dot);
     li.appendChild(name);
     li.appendChild(delBtn);
@@ -103,7 +118,6 @@ function renderTimeline() {
   const totalWidth = days.length * DAY_WIDTH;
 
   const todayStr = toDateStr(new Date());
-  const sidebarWidth = 0;
 
   let headerHtml = `<div class="flex" style="width:${totalWidth}px;min-width:100%">`;
   let currentMonth = "";
@@ -165,16 +179,17 @@ function renderTimeline() {
     const width = Math.max((ei - si) * DAY_WIDTH, DAY_WIDTH / 2);
     const top = rowIdx * ROW_HEIGHT + 8;
     const color = p.color || "#7dd3fc";
+    const safeName = escapeHtml(p.name);
 
-    bodyHtml += `<div class="absolute flex items-center group" style="left:${left}px;width:${width}px;top:${top}px;height:20px" data-project-id="${p.id}">`;
+    bodyHtml += `<div class="absolute flex items-center group" style="left:${left}px;width:${width}px;top:${top}px;height:20px" data-project-id="${escapeHtml(p.id)}">`;
 
-    bodyHtml += `<div class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 w-3 h-3 rounded-full cursor-ew-resize z-10 border-2 border-base-300 hover:scale-125 transition-transform drag-handle-start" style="background:${color}" data-handle="start" data-project-id="${p.id}"></div>`;
+    bodyHtml += `<div class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 w-3 h-3 rounded-full cursor-ew-resize z-10 border-2 border-base-300 hover:scale-125 transition-transform drag-handle-start" style="background:${color}" data-handle="start" data-project-id="${escapeHtml(p.id)}"></div>`;
 
-    bodyHtml += `<div class="w-full h-1.5 rounded-full opacity-70 group-hover:opacity-100 cursor-pointer transition-opacity bar-segment" style="background:${color}" data-project-id="${p.id}"></div>`;
+    bodyHtml += `<div class="w-full h-1.5 rounded-full opacity-70 group-hover:opacity-100 cursor-pointer transition-opacity bar-segment" style="background:${color}" data-project-id="${escapeHtml(p.id)}"></div>`;
 
-    bodyHtml += `<div class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-3 h-3 rounded-full cursor-ew-resize z-10 border-2 border-base-300 hover:scale-125 transition-transform drag-handle-end" style="background:${color}" data-handle="end" data-project-id="${p.id}"></div>`;
+    bodyHtml += `<div class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-3 h-3 rounded-full cursor-ew-resize z-10 border-2 border-base-300 hover:scale-125 transition-transform drag-handle-end" style="background:${color}" data-handle="end" data-project-id="${escapeHtml(p.id)}"></div>`;
 
-    bodyHtml += `<div class="absolute left-1/2 -translate-x-1/2 -top-4 text-[10px] opacity-0 group-hover:opacity-80 pointer-events-none whitespace-nowrap font-mono">${p.name}</div>`;
+    bodyHtml += `<div class="absolute left-1/2 -translate-x-1/2 -top-4 text-[10px] opacity-0 group-hover:opacity-80 pointer-events-none whitespace-nowrap font-mono">${safeName}</div>`;
 
     bodyHtml += `</div>`;
   });
@@ -190,7 +205,8 @@ function renderTimeline() {
 function syncScroll() {
   const header = document.getElementById("timeline-header");
   const body = document.getElementById("timeline-body");
-  if (!header || !body) return;
+  if (!header || !body || scrollBound) return;
+  scrollBound = true;
   body.addEventListener("scroll", () => {
     header.scrollLeft = body.scrollLeft;
   });
@@ -317,6 +333,7 @@ function bindBarClicks() {
       if (!createDragState) return;
       const si = Math.min(createDragState.startDayIdx, createDragState.endDayIdx);
       const ei = Math.max(createDragState.startDayIdx, createDragState.endDayIdx);
+      if (si === ei) { createDragState = null; return; }
       const startDate = toDateStr(createDragState.days[si]);
       const endDate = toDateStr(createDragState.days[ei]);
       createDragState = null;
@@ -381,7 +398,7 @@ function renderColorPicker(activeColor) {
   if (!container) return;
   container.innerHTML = COLORS.map(c => {
     const isActive = c === activeColor;
-    return `<button type="button" data-color="${c}" class="w-5 h-5 rounded-full border-2 transition-transform ${isActive ? "border-white scale-110" : "border-transparent hover:scale-110"}" style="background:${c}"></button>`;
+    return `<button type="button" data-color="${c}" class="w-5 h-5 rounded-full border-2 transition-transform focus-ring ${isActive ? "border-white scale-110" : "border-transparent hover:scale-110"}" style="background:${c}"></button>`;
   }).join("");
 
   container.querySelectorAll("button").forEach(btn => {
@@ -449,6 +466,8 @@ async function deleteProjectById(id) {
   showUndoToast(`Deleted "${removed.name}"`);
 }
 
+const guardedDeleteProjectById = guard(deleteProjectById);
+
 async function deleteProject() {
   const id = document.getElementById("project-edit-id").value;
   if (!id) return;
@@ -465,21 +484,34 @@ async function undoDelete() {
   hideUndoToast();
 }
 
+const guardedUndoDelete = guard(undoDelete);
+
+let undoToastTimer = null;
+let undoToastHandler = null;
+
 function showUndoToast(msg) {
   const toast = document.getElementById("undo-toast");
   if (!toast) return;
   toast.querySelector("span").textContent = msg;
   toast.classList.remove("hidden");
+
+  if (undoToastTimer) clearTimeout(undoToastTimer);
+
   const undoBtn = toast.querySelector("button");
-  const handler = () => { undoDelete(); undoBtn.removeEventListener("click", handler); };
-  undoBtn.addEventListener("click", handler);
-  if (showUndoToast._timer) clearTimeout(showUndoToast._timer);
-  showUndoToast._timer = setTimeout(() => hideUndoToast(), 5000);
+  if (undoToastHandler) undoBtn.removeEventListener("click", undoToastHandler);
+  undoToastHandler = () => guardedUndoDelete();
+  undoBtn.addEventListener("click", undoToastHandler);
+
+  undoToastTimer = setTimeout(() => hideUndoToast(), 5000);
 }
 
 function hideUndoToast() {
   const toast = document.getElementById("undo-toast");
-  if (toast) toast.classList.add("hidden");
+  if (!toast) return;
+  toast.classList.add("hidden");
+  if (undoToastTimer) { clearTimeout(undoToastTimer); undoToastTimer = null; }
+  const undoBtn = toast.querySelector("button");
+  if (undoToastHandler) { undoBtn.removeEventListener("click", undoToastHandler); undoToastHandler = null; }
 }
 
 function goToDashboard() {
@@ -495,7 +527,7 @@ function toDateStr(date) {
 }
 
 function addDays(dateStr, n) {
-  const d = new Date(dateStr);
+  const d = new Date(dateStr + "T00:00:00");
   d.setDate(d.getDate() + n);
   return toDateStr(d);
 }
@@ -503,6 +535,14 @@ function addDays(dateStr, n) {
 function isInputFocused() {
   const el = document.activeElement;
   return el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable);
+}
+
+function isModalOrOverlayOpen() {
+  const helpOverlay = document.getElementById("help-overlay");
+  const modal = document.getElementById("project-modal");
+  if (helpOverlay && !helpOverlay.classList.contains("hidden")) return true;
+  if (modal && modal.open) return true;
+  return false;
 }
 
 function bindEvents() {
@@ -527,6 +567,7 @@ function bindKeyboard() {
         modal.close();
         return;
       }
+      return;
     }
 
     if (isInputFocused()) {
@@ -536,6 +577,8 @@ function bindKeyboard() {
       }
       return;
     }
+
+    if (isModalOrOverlayOpen()) return;
 
     if (e.key === "n") {
       openNewProject();
@@ -548,13 +591,13 @@ function bindKeyboard() {
     }
 
     if (e.key === "u") {
-      undoDelete();
+      guardedUndoDelete();
       return;
     }
 
     if (e.key === "Backspace" && selectedProjectId) {
       e.preventDefault();
-      deleteProjectById(selectedProjectId);
+      guardedDeleteProjectById(selectedProjectId);
       return;
     }
 
