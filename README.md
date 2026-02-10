@@ -108,18 +108,20 @@ This will launch Firefox with your extension loaded. The page will automatically
 
 ### Build for Production
 
-This command builds your extension for production. It optimizes and bundles your extension, preparing it for deployment to the target browser's store.
+Build for a specific browser. Each outputs to its own directory (`dist/chrome` or `dist/firefox`):
 
 ```bash
-pnpm build
+pnpm build:chrome    # → dist/chrome/
+pnpm build:firefox   # → dist/firefox/
 ```
 
 ### Linting
 
-After building, you can run the linter on the production files in the `dist/` directory to check for issues:
+Run Mozilla's addons-linter against the Firefox build (requires `build:firefox` first):
 
 ```bash
-pnpm lint dist/
+pnpm build:firefox
+pnpm lint
 ```
 
 ## 📄 License

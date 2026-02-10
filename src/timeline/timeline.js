@@ -77,7 +77,15 @@ function renderProjectList() {
   list.innerHTML = "";
 
   if (projects.length === 0) {
-    list.innerHTML = `<li class="text-xs opacity-40 px-2 py-3">No projects yet. Press <kbd class="kbd kbd-xs">n</kbd> to add one.</li>`;
+    const li = document.createElement("li");
+    li.className = "text-xs opacity-40 px-2 py-3";
+    li.append("No projects yet. Press ");
+    const kbd = document.createElement("kbd");
+    kbd.className = "kbd kbd-xs";
+    kbd.textContent = "n";
+    li.appendChild(kbd);
+    li.append(" to add one.");
+    list.appendChild(li);
     return;
   }
 
@@ -119,17 +127,29 @@ function renderTimeline() {
 
   const todayStr = toDateStr(new Date());
 
-  let headerHtml = `<div class="flex" style="width:${totalWidth}px;min-width:100%">`;
+  const headerWrap = document.createElement("div");
+  headerWrap.className = "overflow-hidden";
+
+  const monthRow = document.createElement("div");
+  monthRow.className = "flex";
+  monthRow.style.cssText = `width:${totalWidth}px;min-width:100%`;
+
+  const monthRowInner = document.createElement("div");
+  monthRowInner.className = "flex h-6";
+
   let currentMonth = "";
   let monthStart = 0;
-  let monthCells = "";
 
   days.forEach((day, i) => {
     const m = formatMonthLabel(day);
     if (m !== currentMonth) {
       if (currentMonth) {
         const mw = (i - monthStart) * DAY_WIDTH;
-        monthCells += `<div class="inline-flex items-center border-r border-base-content/10 text-xs font-semibold opacity-50 px-1 uppercase tracking-wider" style="width:${mw}px">${currentMonth}</div>`;
+        const cell = document.createElement("div");
+        cell.className = "inline-flex items-center border-r border-base-content/10 text-xs font-semibold opacity-50 px-1 uppercase tracking-wider";
+        cell.style.cssText = `width:${mw}px`;
+        cell.textContent = currentMonth;
+        monthRowInner.appendChild(cell);
       }
       currentMonth = m;
       monthStart = i;
@@ -137,34 +157,54 @@ function renderTimeline() {
   });
   if (currentMonth) {
     const mw = (days.length - monthStart) * DAY_WIDTH;
-    monthCells += `<div class="inline-flex items-center border-r border-base-content/10 text-xs font-semibold opacity-50 px-1 uppercase tracking-wider" style="width:${mw}px">${currentMonth}</div>`;
+    const cell = document.createElement("div");
+    cell.className = "inline-flex items-center border-r border-base-content/10 text-xs font-semibold opacity-50 px-1 uppercase tracking-wider";
+    cell.style.cssText = `width:${mw}px`;
+    cell.textContent = currentMonth;
+    monthRowInner.appendChild(cell);
   }
 
-  headerHtml += `<div class="flex h-6">${monthCells}</div></div>`;
+  monthRow.appendChild(monthRowInner);
 
-  let dayRow = `<div class="flex" style="width:${totalWidth}px;min-width:100%">`;
+  const dayRow = document.createElement("div");
+  dayRow.className = "flex";
+  dayRow.style.cssText = `width:${totalWidth}px;min-width:100%`;
+
   days.forEach(day => {
     const ds = toDateStr(day);
     const isToday = ds === todayStr;
     const isWeekend = day.getDay() === 0 || day.getDay() === 6;
     const dayNum = day.getDate();
-    dayRow += `<div class="flex items-center justify-center text-[10px] font-mono border-r border-base-content/5 ${isToday ? "text-primary font-bold" : isWeekend ? "opacity-30" : "opacity-50"}" style="width:${DAY_WIDTH}px;min-width:${DAY_WIDTH}px">${dayNum}</div>`;
+    const dayCell = document.createElement("div");
+    dayCell.className = `flex items-center justify-center text-[10px] font-mono border-r border-base-content/5 ${isToday ? "text-primary font-bold" : isWeekend ? "opacity-30" : "opacity-50"}`;
+    dayCell.style.cssText = `width:${DAY_WIDTH}px;min-width:${DAY_WIDTH}px`;
+    dayCell.textContent = dayNum;
+    dayRow.appendChild(dayCell);
   });
-  dayRow += `</div>`;
 
-  header.innerHTML = `<div class="overflow-hidden">${headerHtml}${dayRow}</div>`;
+  headerWrap.appendChild(monthRow);
+  headerWrap.appendChild(dayRow);
+  header.replaceChildren(headerWrap);
 
-  let bodyHtml = `<div class="relative" style="width:${totalWidth}px;min-width:100%;height:${Math.max(projects.length * ROW_HEIGHT + 20, 200)}px">`;
+  const bodyContainer = document.createElement("div");
+  bodyContainer.className = "relative";
+  bodyContainer.style.cssText = `width:${totalWidth}px;min-width:100%;height:${Math.max(projects.length * ROW_HEIGHT + 20, 200)}px`;
 
   const todayIdx = days.findIndex(d => toDateStr(d) === todayStr);
   if (todayIdx >= 0) {
-    bodyHtml += `<div class="absolute top-0 bottom-0 border-l-2 border-primary/30 z-0" style="left:${todayIdx * DAY_WIDTH + DAY_WIDTH / 2}px"></div>`;
+    const todayLine = document.createElement("div");
+    todayLine.className = "absolute top-0 bottom-0 border-l-2 border-primary/30 z-0";
+    todayLine.style.cssText = `left:${todayIdx * DAY_WIDTH + DAY_WIDTH / 2}px`;
+    bodyContainer.appendChild(todayLine);
   }
 
   days.forEach((day, i) => {
     const isWeekend = day.getDay() === 0 || day.getDay() === 6;
     if (isWeekend) {
-      bodyHtml += `<div class="absolute top-0 bottom-0 bg-base-content/[0.02]" style="left:${i * DAY_WIDTH}px;width:${DAY_WIDTH}px"></div>`;
+      const wknd = document.createElement("div");
+      wknd.className = "absolute top-0 bottom-0 bg-base-content/[0.02]";
+      wknd.style.cssText = `left:${i * DAY_WIDTH}px;width:${DAY_WIDTH}px`;
+      bodyContainer.appendChild(wknd);
     }
   });
 
@@ -179,23 +219,41 @@ function renderTimeline() {
     const width = Math.max((ei - si) * DAY_WIDTH, DAY_WIDTH / 2);
     const top = rowIdx * ROW_HEIGHT + 8;
     const color = p.color || "#7dd3fc";
-    const safeName = escapeHtml(p.name);
 
-    bodyHtml += `<div class="absolute flex items-center group" style="left:${left}px;width:${width}px;top:${top}px;height:20px" data-project-id="${escapeHtml(p.id)}">`;
+    const row = document.createElement("div");
+    row.className = "absolute flex items-center group";
+    row.style.cssText = `left:${left}px;width:${width}px;top:${top}px;height:20px`;
+    row.dataset.projectId = p.id;
 
-    bodyHtml += `<div class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 w-3 h-3 rounded-full cursor-ew-resize z-10 border-2 border-base-300 hover:scale-125 transition-transform drag-handle-start" style="background:${color}" data-handle="start" data-project-id="${escapeHtml(p.id)}"></div>`;
+    const handleStart = document.createElement("div");
+    handleStart.className = "absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 w-3 h-3 rounded-full cursor-ew-resize z-10 border-2 border-base-300 hover:scale-125 transition-transform drag-handle-start";
+    handleStart.style.background = color;
+    handleStart.dataset.handle = "start";
+    handleStart.dataset.projectId = p.id;
 
-    bodyHtml += `<div class="w-full h-1.5 rounded-full opacity-70 group-hover:opacity-100 cursor-pointer transition-opacity bar-segment" style="background:${color}" data-project-id="${escapeHtml(p.id)}"></div>`;
+    const bar = document.createElement("div");
+    bar.className = "w-full h-1.5 rounded-full opacity-70 group-hover:opacity-100 cursor-pointer transition-opacity bar-segment";
+    bar.style.background = color;
+    bar.dataset.projectId = p.id;
 
-    bodyHtml += `<div class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-3 h-3 rounded-full cursor-ew-resize z-10 border-2 border-base-300 hover:scale-125 transition-transform drag-handle-end" style="background:${color}" data-handle="end" data-project-id="${escapeHtml(p.id)}"></div>`;
+    const handleEnd = document.createElement("div");
+    handleEnd.className = "absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-3 h-3 rounded-full cursor-ew-resize z-10 border-2 border-base-300 hover:scale-125 transition-transform drag-handle-end";
+    handleEnd.style.background = color;
+    handleEnd.dataset.handle = "end";
+    handleEnd.dataset.projectId = p.id;
 
-    bodyHtml += `<div class="absolute left-1/2 -translate-x-1/2 -top-4 text-[10px] opacity-0 group-hover:opacity-80 pointer-events-none whitespace-nowrap font-mono">${safeName}</div>`;
+    const label = document.createElement("div");
+    label.className = "absolute left-1/2 -translate-x-1/2 -top-4 text-[10px] opacity-0 group-hover:opacity-80 pointer-events-none whitespace-nowrap font-mono";
+    label.textContent = p.name;
 
-    bodyHtml += `</div>`;
+    row.appendChild(handleStart);
+    row.appendChild(bar);
+    row.appendChild(handleEnd);
+    row.appendChild(label);
+    bodyContainer.appendChild(row);
   });
 
-  bodyHtml += `</div>`;
-  body.innerHTML = bodyHtml;
+  body.replaceChildren(bodyContainer);
 
   syncScroll();
   bindDragHandles();
@@ -396,12 +454,14 @@ function openEditProject(id) {
 function renderColorPicker(activeColor) {
   const container = document.getElementById("color-picker");
   if (!container) return;
-  container.innerHTML = COLORS.map(c => {
+  const fragment = document.createDocumentFragment();
+  COLORS.forEach(c => {
     const isActive = c === activeColor;
-    return `<button type="button" data-color="${c}" class="w-5 h-5 rounded-full border-2 transition-transform focus-ring ${isActive ? "border-white scale-110" : "border-transparent hover:scale-110"}" style="background:${c}"></button>`;
-  }).join("");
-
-  container.querySelectorAll("button").forEach(btn => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.dataset.color = c;
+    btn.className = `w-5 h-5 rounded-full border-2 transition-transform focus-ring ${isActive ? "border-white scale-110" : "border-transparent hover:scale-110"}`;
+    btn.style.background = c;
     btn.addEventListener("click", () => {
       container.querySelectorAll("button").forEach(b => {
         b.classList.remove("border-white", "scale-110");
@@ -410,7 +470,9 @@ function renderColorPicker(activeColor) {
       btn.classList.add("border-white", "scale-110");
       btn.classList.remove("border-transparent");
     });
+    fragment.appendChild(btn);
   });
+  container.replaceChildren(fragment);
 }
 
 function getSelectedColor() {

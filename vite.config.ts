@@ -5,6 +5,7 @@ import webExtension, { readJsonFile } from "vite-plugin-web-extension";
 const target = process.env.TARGET || "chrome";
 const targetBrowser = process.env.TARGET_BROWSER || "chrome";
 const chromiumBinary = process.env.CHROMIUM_BINARY || "/usr/bin/google-chrome";
+const outDir = process.env.OUT_DIR || `../dist/${target}`;
 
 function generateManifest() {
   const manifest = readJsonFile("manifest.json");
@@ -23,7 +24,7 @@ export default defineConfig({
     __BROWSER__: JSON.stringify(target),
   },
   build:{
-    outDir: '../dist',
+    outDir,
     emptyOutDir: true
   },
   plugins: [
