@@ -127,9 +127,6 @@ function renderTimeline() {
 
   const todayStr = toDateStr(new Date());
 
-  const headerWrap = document.createElement("div");
-  headerWrap.className = "overflow-hidden";
-
   const monthRow = document.createElement("div");
   monthRow.className = "flex";
   monthRow.style.cssText = `width:${totalWidth}px;min-width:100%`;
@@ -182,9 +179,7 @@ function renderTimeline() {
     dayRow.appendChild(dayCell);
   });
 
-  headerWrap.appendChild(monthRow);
-  headerWrap.appendChild(dayRow);
-  header.replaceChildren(headerWrap);
+  header.replaceChildren(monthRow, dayRow);
 
   const bodyContainer = document.createElement("div");
   bodyContainer.className = "relative";
@@ -347,7 +342,7 @@ function bindBarClicks() {
     const container = body.querySelector(".relative");
     if (!container) return;
     const rect = container.getBoundingClientRect();
-    const x = e.clientX - rect.left + body.scrollLeft;
+    const x = e.clientX - rect.left;
     const days = getVisibleRange();
     const dayIdx = Math.floor(x / DAY_WIDTH);
     if (dayIdx < 0 || dayIdx >= days.length) return;
@@ -375,7 +370,7 @@ function bindBarClicks() {
 
     const onMove = (ev) => {
       if (!createDragState) return;
-      const mx = ev.clientX - rect.left + body.scrollLeft;
+      const mx = ev.clientX - rect.left;
       const curIdx = Math.max(0, Math.min(Math.floor(mx / DAY_WIDTH), days.length - 1));
       createDragState.endDayIdx = curIdx;
       const si = Math.min(createDragState.startDayIdx, curIdx);
