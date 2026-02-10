@@ -7,6 +7,7 @@
     "dev": "vite",
     "build:chrome": "TARGET=chrome TARGET_BROWSER=chrome vite build",
     "build:firefox": "TARGET=firefox TARGET_BROWSER=firefox vite build",
+    "build": "pnpm build:chrome && pnpm build:firefox",
     "lint": "addons-linter dist/firefox"
   },
   "devDependencies": {

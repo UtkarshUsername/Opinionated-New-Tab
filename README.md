@@ -113,6 +113,7 @@ Build for a specific browser. Each outputs to its own directory (`dist/chrome` o
 ```bash
 pnpm build:chrome    # → dist/chrome/
 pnpm build:firefox   # → dist/firefox/
+pnpm build           # → both
 ```
 
 ### Linting
