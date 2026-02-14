@@ -8,7 +8,7 @@ function getDefaultState() {
     updatedAt: new Date().toISOString(),
     settings: {
       theme: "dark",
-      showCompletedTasks: false,
+      showCompletedTasks: true,
       countdown: {
         label: "Launch",
         targetIso: "2026-03-01T18:00:00.000Z",

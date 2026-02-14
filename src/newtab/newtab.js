@@ -107,7 +107,7 @@ function renderTasks() {
     li.appendChild(cb);
     li.appendChild(span);
     li.appendChild(delBtn);
-    li.addEventListener("click", () => { selectedTaskIndex = i; renderTasks(); });
+    li.addEventListener("click", () => { selectedTaskIndex = i; guardedToggleTask(task.id); });
     list.appendChild(li);
 
     if (isSelected) {
