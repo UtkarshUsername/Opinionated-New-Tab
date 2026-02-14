@@ -1,7 +1,10 @@
 {
   "{{firefox}}.browser_specific_settings": {
     "gecko": {
-      "id": "opinionated-new-tab@utkarsh"
+      "id": "opinionated-new-tab@utkarsh",
+      "data_collection_permissions": {
+        "required": ["none"]
+      }
     }
   },
   "name": "Opinionated New Tab",
