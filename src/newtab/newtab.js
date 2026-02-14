@@ -530,6 +530,13 @@ function bindKeyboard() {
 
     const visibleTasks = getVisibleTasks();
 
+    if (e.key === "Tab" && !e.shiftKey && selectedTaskIndex < 0 && visibleTasks.length > 0) {
+      e.preventDefault();
+      selectedTaskIndex = 0;
+      renderTasks();
+      return;
+    }
+
     if (e.key === "ArrowDown") {
       e.preventDefault();
       if (visibleTasks.length === 0) return;
