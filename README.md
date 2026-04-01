@@ -8,6 +8,9 @@
   <a href="https://github.com/UtkarshUsername/Opinionated-New-Tab/blob/main/LICENSE"><img src="https://img.shields.io/github/license/UtkarshUsername/Opinionated-New-Tab?style=flat-square" alt="License"></a>
 </p>
 
+<img width="1920" height="960" alt="image" src="https://github.com/user-attachments/assets/9fee5903-05a0-4ca2-9415-2b4f7cba8f89" />
+<img width="1920" height="952" alt="image" src="https://github.com/user-attachments/assets/86fa3974-bec8-47c2-be15-0d176cb6b352" />
+
 ## 📋 Table of Contents
 
 - [Installation](#installation)
